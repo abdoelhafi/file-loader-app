@@ -1,4 +1,3 @@
-// hooks/useFileManager.ts
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
 import { fileService } from "../services/fileService";
