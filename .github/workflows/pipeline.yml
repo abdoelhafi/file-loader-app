@@ -95,21 +95,6 @@ jobs:
     name: 'Deploy'
     runs-on: ubuntu-latest
     environment: prod
-    env:
-      AWS_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      DEBUG: ${{ secrets.DEBUG }}
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-      AWS_STORAGE_BUCKET_NAME: ${{ secrets.AWS_STORAGE_BUCKET_NAME }}
-      RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
-      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-      DATABASE_USER: ${{ secrets.DATABASE_USER }}
-      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-      FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
     
     steps:
       - uses: actions/checkout@v3
