@@ -9,23 +9,31 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    env:
+      DEBUG: ${{ secrets.DEBUG }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_STORAGE_BUCKET_NAME: ${{ secrets.AWS_STORAGE_BUCKET_NAME }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      RDS_ENDPOINT: ${{ secrets.RDS_ENDPOINT }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
     steps:
       - uses: actions/checkout@v3
 
-      # Set up Python
+      # Backend tests
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      # Backend tests
       - name: Run backend tests
         working-directory: ./backend
         run: |
@@ -34,15 +42,20 @@ jobs:
           python manage.py test
 
       # Frontend tests
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Run frontend tests
         working-directory: ./frontend
         run: npm test
 
-      # Build and push Docker images
+      # Build Docker images
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
@@ -52,8 +65,20 @@ jobs:
           context: ./backend
           push: false
           tags: file-manager-backend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          build-args: |
+            DEBUG=${{ secrets.DEBUG }}
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
+            ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
+            AWS_REGION=${{ secrets.AWS_REGION }}
+            AWS_STORAGE_BUCKET_NAME=${{ secrets.AWS_STORAGE_BUCKET_NAME }}
+            AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            RDS_ENDPOINT=${{ secrets.RDS_ENDPOINT }}
+            DATABASE_NAME=${{ secrets.DATABASE_NAME }}
+            DATABASE_USER=${{ secrets.DATABASE_USER }}
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            DATABASE_HOST=${{ secrets.DATABASE_HOST }}
+            DATABASE_PORT=${{ secrets.DATABASE_PORT }}
 
       - name: Build frontend Docker image
         uses: docker/build-push-action@v4
@@ -61,5 +86,5 @@ jobs:
           context: ./frontend
           push: false
           tags: file-manager-frontend:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
