@@ -7,12 +7,23 @@ import logging
 from ..models import FileUpload
 from .s3 import S3Service
 from ..exceptions import FileValidationError, StorageError
-
+from .content_validator import ContentValidator
+from ..constants.file_service_constants import FileValidationConstants, ContentValidationMessages
 logger = logging.getLogger(__name__)
 
 class FileService:
     def __init__(self):
         self.s3_service = S3Service()
+
+    def _validate_content(self, content: str) -> None:
+        """
+        Validates file content for security concerns.
+        """
+        try:
+            ContentValidator.validate_content(content)
+        except FileValidationError as e:
+            logger.warning(f"Content validation failed: {str(e)}")
+            raise
 
     def _prepare_file_metadata(self, file_obj) -> Dict:
         """Prepares metadata for file upload."""
@@ -35,12 +46,23 @@ class FileService:
         }
 
     def _validate_file(self, file_obj) -> None:
-        """Validates file size and type."""
-        if not (512 <= file_obj.size <= 2048):  # 0.5KB to 2KB in bytes
-            raise FileValidationError("File size must be between 0.5KB and 2KB")
+        """Validates file size, type and extension."""
+        # Validate size
+        if not (FileValidationConstants.MIN_SIZE_BYTES <= file_obj.size <= FileValidationConstants.MAX_SIZE_BYTES):
+            raise FileValidationError(ContentValidationMessages.INVALID_SIZE)
         
-        if file_obj.content_type != 'text/plain':
-            raise FileValidationError("Only text files are allowed")
+        # Validate content type
+        if file_obj.content_type != FileValidationConstants.ALLOWED_CONTENT_TYPE:
+            raise FileValidationError(ContentValidationMessages.INVALID_TYPE)
+        
+        # Validate extension
+        extension = file_obj.name.split('.')[-1].lower()
+        if extension not in FileValidationConstants.ALLOWED_EXTENSIONS:
+            raise FileValidationError(ContentValidationMessages.INVALID_EXTENSION)
+        
+        # Validate filename length
+        if len(file_obj.name) > FileValidationConstants.MAX_FILENAME_LENGTH:
+            raise FileValidationError(f"Filename exceeds {FileValidationConstants.MAX_FILENAME_LENGTH} characters")
 
     def _read_file_content(self, file_obj) -> str:
         """Reads and validates file content."""
@@ -52,6 +74,14 @@ class FileService:
         except UnicodeDecodeError:
             raise FileValidationError("File must be UTF-8 encoded")
 
+    def _read_and_validate_file_content(self, file_obj) -> str:
+        """
+        Reads and validates file content.
+        """
+        content = self._read_file_content(file_obj)
+        self._validate_content(content)
+        return content
+    
     @transaction.atomic
     def create_file(self, file_obj) -> FileUpload:
         """
@@ -62,7 +92,7 @@ class FileService:
         """
         # Validate file
         self._validate_file(file_obj)
-        content = self._read_file_content(file_obj)
+        content = self._read_and_validate_file_content(file_obj)
 
         # Prepare for S3 upload
         file_extension = file_obj.name.split('.')[-1]
