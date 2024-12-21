@@ -9,6 +9,7 @@ on:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
+    environment: prod
     env:
       DEBUG: ${{ secrets.DEBUG }}
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
