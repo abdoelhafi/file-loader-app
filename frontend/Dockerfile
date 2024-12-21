@@ -5,8 +5,8 @@ FROM node:20-slim
 WORKDIR /app
 
 # Set build arguments
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ARG FRONTEND_URL
+ENV FRONTEND_URL=$FRONTEND_URL
 
 # Copy package files
 COPY package*.json ./
