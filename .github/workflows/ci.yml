@@ -52,9 +52,9 @@ jobs:
         working-directory: ./frontend
         run: npm install --legacy-peer-deps
 
-    #   - name: Run frontend tests
-        # working-directory: ./frontend
-        # run: npm test
+      - name: Run frontend tests
+        working-directory: ./frontend
+        run: npm test
 
       # Build Docker images
       - name: Set up Docker Buildx

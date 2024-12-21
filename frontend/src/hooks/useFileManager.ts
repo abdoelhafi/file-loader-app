@@ -1,8 +1,7 @@
-// hooks/useFileManager.ts
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "react-toastify";
-import { fileService } from "../services/api";
-import type { UploadedFile, FileValidationResult } from "../types/file";
+import { fileService } from "../services/fileService";
+import type { UploadedFile, FileValidationResult } from "../types/api";
 
 export const useFileManager = () => {
   const [files, setFiles] = useState<UploadedFile[]>([]);

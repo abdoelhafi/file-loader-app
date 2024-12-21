@@ -1,7 +1,7 @@
 // components/FileList.tsx
 import React, { useCallback, useRef } from "react";
 import { FileText, Trash2, Upload, Plus } from "lucide-react";
-import type { UploadedFile } from "../types/file";
+import type { UploadedFile } from "../types/api";
 import { Loading } from "./ui/Loading";
 
 interface FileListProps {
