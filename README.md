@@ -24,9 +24,7 @@ A production-grade file management system built with modern technologies:
 
 ## 🏗️ Architecture Overview
 
-![Architecture Diagram](./docs/images/architecture.png)
-
-The application follows a microservices architecture with separate frontend and backend services. For detailed architecture information, see [Architecture Documentation](./docs/architecture.md).
+ see [Architecture Documentation](./docs/architecture.md).
 
 ## 🛠️ Tech Stack
 
