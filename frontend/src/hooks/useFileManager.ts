@@ -49,7 +49,7 @@ export const useFileManager = () => {
 
     if (!validation.isValid) {
       setError(validation.error || "Invalid file");
-      toast.error(validation.error || "Invalid file");
+      toast.error("Invalid file");
       return;
     }
 
@@ -60,8 +60,8 @@ export const useFileManager = () => {
       toast.success("File uploaded successfully!");
       setError("");
     } catch (err: any) {
-      toast.error(err.response?.data?.error || "Failed to upload file");
-      setError(err.response?.data?.error || "Failed to upload file");
+      toast.error("Failed to upload file");
+      setError("Failed to upload file");
     } finally {
       setLoading(false);
     }
